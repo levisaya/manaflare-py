@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from manaflare_app.models import Card, SuperType, Type, SubType, CardColors
-from manaflare_app.api.serializers import CardSerializer, SuperTypeSerializer, TypeSerializer, SubTypeSerializer, CardColorSerializer
+from manaflare_app.models import Card, SuperType, Type, SubType, Set
+from manaflare_app.api.serializers import CardSerializer, SuperTypeSerializer, TypeSerializer, SubTypeSerializer, SetSerializer
 
 
 class SuperTypeViewSet(viewsets.ModelViewSet):
@@ -23,6 +23,6 @@ class CardViewSet(viewsets.ModelViewSet):
     serializer_class = CardSerializer
 
 
-class CardColorViewSet(viewsets.ModelViewSet):
-    queryset = CardColors.objects.all()
-    serializer_class = CardColorSerializer
+class SetViewSet(viewsets.ModelViewSet):
+    queryset = Set.objects.all()
+    serializer_class = SetSerializer
