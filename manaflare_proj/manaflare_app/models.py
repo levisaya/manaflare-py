@@ -1,5 +1,6 @@
 from django.db import models
 from enum import Enum
+from separatedvaluesfield.models import SeparatedValuesField
 
 
 class SuperType(models.Model):
@@ -25,29 +26,6 @@ class SubType(models.Model):
 
 class Artist(models.Model):
     name = models.CharField('Name', max_length=100, unique=True)
-
-
-class SeparatedValuesField(models.TextField):
-    __metaclass__ = models.SubfieldBase
-
-    def __init__(self, *args, **kwargs):
-        self.token = kwargs.pop('token', ',')
-        super(SeparatedValuesField, self).__init__(*args, **kwargs)
-
-    def to_python(self, value):
-        if not value: return
-        if isinstance(value, list):
-            return value
-        return value.split(self.token)
-
-    def get_db_prep_value(self, value):
-        if not value: return
-        assert(isinstance(value, list) or isinstance(value, tuple))
-        return self.token.join([s for s in value])
-
-    def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(value)
 
 
 class CardColors(models.Model):
@@ -85,17 +63,21 @@ class Printing(models.Model):
         (RARITY_RARE, 'Rare'),
         (RARITY_MYTHIC, 'Mythic Rare'),
         (RARITY_SPECIAL, 'Special'),
-        (RARITY_BASIC_LAND, 'BasicLand')
+        (RARITY_BASIC_LAND, 'Basic Land')
     )
 
+    @classmethod
+    def rarity_from_json(cls, json_str):
+        return {human_readable: db_value for db_value, human_readable in cls.RARITIES}.get(json_str, None)
+
     rarity = models.IntegerField('Rarity', choices=RARITIES)
-    flavor = models.TextField('Flavor Text')
+    flavor = models.TextField('Flavor Text', null=True)
     artist = models.ForeignKey('Artist')
-    number = models.CharField('Card Number', max_length=5)
-    multiverse_id = models.IntegerField('Multiverse Id')
-    variations = SeparatedValuesField('Variations')
-    border = models.CharField('Border Color', max_length=10)
-    timeshifted = models.BooleanField('Is Timeshifted')
+    number = models.CharField('Card Number', max_length=5, null=True)
+    multiverse_id = models.IntegerField('Multiverse Id', null=True)
+    variations = SeparatedValuesField('Variations', cast=int, max_length=150)
+    border = models.CharField('Border Color', max_length=10, null=True)
+    timeshifted = models.BooleanField('Is Timeshifted', default=False)
 
     card = models.ForeignKey('Card')
     set = models.ForeignKey('Set')
@@ -127,12 +109,17 @@ class Card(models.Model):
         (LAYOUT_VANGUARD, 'Vanguard')
     )
 
+    @classmethod
+    def layout_from_json(cls, json_str):
+        return {human_readable.lower().replace(' ', '-'): db_value for db_value, human_readable in cls.LAYOUTS}.get(json_str, None)
+
+
     hash_id = models.CharField('Hash ID', unique=True, max_length=50)
     layout = models.IntegerField('Layout', choices=LAYOUTS)
-    name = models.CharField('Name', max_length=75)
-    names = SeparatedValuesField('Names')
-    mana_cost = models.CharField('Mana Cost', max_length=20)
-    cmc = models.FloatField('Converted Mana Cost', default=0)
+    name = models.CharField('Name', max_length=75, unique=True)
+    names = SeparatedValuesField('Names', max_length=150)
+    mana_cost = models.CharField('Mana Cost', max_length=20, null=True)
+    cmc = models.FloatField('Converted Mana Cost', default=0, null=True)
     colors = models.ManyToManyField(CardColors, 'Colors', related_name='card_color')
     color_identity = models.ManyToManyField(CardColors, 'Color Identity', related_name='color_identity')
     type = models.CharField('Card Type', max_length=100)
@@ -140,13 +127,13 @@ class Card(models.Model):
     types = models.ManyToManyField('Type')
     subtypes = models.ManyToManyField('Subtype', blank=True)
     text = models.TextField('Rules Text', default='')
-    power = models.CharField('Power', default='', max_length=5)
-    toughness = models.CharField('Toughness', default='', max_length=5)
+    power = models.CharField('Power', null=True, max_length=5)
+    toughness = models.CharField('Toughness', null=True, max_length=5)
     loyalty = models.IntegerField('Loyalty', null=True)
-    watermark = models.CharField('Watermark', max_length=20, default='')
+    watermark = models.CharField('Watermark', max_length=20, null=True)
 
-    original_text = models.TextField('Original Text')
-    original_type = models.TextField('Original Type')
+    original_text = models.TextField('Original Text', null=True)
+    original_type = models.TextField('Original Type', null=True)
 
 
 class Rulings(models.Model):
@@ -171,7 +158,7 @@ class Set(models.Model):
     SET_TYPE_PROMO = 12
     SET_TYPE_VANGUARD = 13
     SET_TYPE_MASTERS = 14
-
+    SET_TYPE_CONSPIRACY = 15
 
     SET_TYPES = (
         (SET_TYPE_CORE, 'Core'),
@@ -188,7 +175,8 @@ class Set(models.Model):
         (SET_TYPE_ARCHENEMY, 'Archenemy'),
         (SET_TYPE_PROMO, 'Promo'),
         (SET_TYPE_VANGUARD, 'Vanguard'),
-        (SET_TYPE_MASTERS, 'Masters')
+        (SET_TYPE_MASTERS, 'Masters'),
+        (SET_TYPE_CONSPIRACY, 'Conspiracy')
     )
 
     @classmethod
@@ -205,4 +193,26 @@ class Set(models.Model):
 
 
 class Format(models.Model):
+    name = models.CharField('Name', max_length=25, unique=True)
     sets = models.ManyToManyField(Set)
+    cards = models.ManyToManyField(Card, through='FormatRelationship')
+
+
+class FormatRelationship(models.Model):
+    LEGALITY_LEGAL = 0
+    LEGALITY_BANNED = 1
+    LEGALITY_RESTRICTED = 2
+
+    LEGALITIES = (
+        (LEGALITY_LEGAL, 'Legal'),
+        (LEGALITY_BANNED, 'Banned'),
+        (LEGALITY_RESTRICTED, 'Restricted')
+    )
+
+    @classmethod
+    def legality_from_json(cls, json_str):
+        return {human_readable: db_value for db_value, human_readable in cls.LEGALITIES}.get(json_str, None)
+
+    card = models.ForeignKey(Card)
+    format = models.ForeignKey(Format)
+    status = models.IntegerField('Legality', choices=LEGALITIES)

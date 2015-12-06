@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     def forwards_func(apps, schema_editor):
         db_alias = schema_editor.connection.alias
-        populate_from_json(db_alias, '2ED')
+        populate_from_json(db_alias)
 
 
     def reverse_func(apps, schema_editor):
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
 
 
     dependencies = [
-        ('manaflare_app', '0004_auto_20151202_2238'),
+        ('manaflare_app', '0002_add_colors'),
     ]
 
     operations = [
