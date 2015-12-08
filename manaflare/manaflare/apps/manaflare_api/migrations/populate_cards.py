@@ -2,21 +2,19 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from manaflare_app.fixtures.populate import populate_from_json
+from manaflare.apps.manaflare_api.populate import populate_from_json
+
 
 class Migration(migrations.Migration):
-
     def forwards_func(apps, schema_editor):
         db_alias = schema_editor.connection.alias
-        populate_from_json(db_alias)
-
+        populate_from_json(db_alias, 'ISD')
 
     def reverse_func(apps, schema_editor):
         db_alias = schema_editor.connection.alias
 
-
     dependencies = [
-        ('manaflare_app', '0002_add_colors'),
+        ('manaflare_api', '0002_add_colors'),
     ]
 
     operations = [

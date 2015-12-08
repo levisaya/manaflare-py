@@ -2,7 +2,7 @@ from io import BytesIO
 import requests
 import zipfile
 import json
-from manaflare_app.models import Set, Artist, Format, Printing, CardColors, Card, SuperType, Type, SubType, FormatRelationship
+from manaflare.apps.manaflare_api.v1.models import Set, Artist, Format, Printing, CardColors, Card, SuperType, Type, SubType, FormatRelationship
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -39,7 +39,6 @@ def parse_set(db_alias, set_json):
             pass
 
         if card_record is None:
-            print(repr('Creating card: {}'.format(card['name'])))
             card_record = Card.objects.using(db_alias).create(hash_id=card['id'],
                                                               layout=Card.layout_from_json(card['layout']),
                                                               name=card['name'],
@@ -62,7 +61,6 @@ def parse_set(db_alias, set_json):
                 card_record.color_identity.add(color_identities[color_str])
 
             card_record.supertypes = supertypes
-            print('Types: {}'.format(types))
             card_record.types = types
             card_record.subtypes = subtypes
             card_record.save()
@@ -99,7 +97,6 @@ def populate_from_json(db_alias, set_code=None):
     zip = zipfile.ZipFile(io)
 
     for name in zip.namelist():
-        print('Parsing Set {}'.format(name))
         parse_set(db_alias, json.loads(zip.read(name).decode('UTF-8')))
 
 

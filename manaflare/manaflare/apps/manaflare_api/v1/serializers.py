@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from manaflare_app.models import Card, SuperType, Type, SubType, CardColors, Set
+from manaflare.apps.manaflare_api.v1.models import Card, SuperType, Type, SubType, CardColors, Set
 
 
 class SuperTypeSerializer(serializers.HyperlinkedModelSerializer):

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from rest_framework import routers
-from manaflare_app.api.views import CardViewSet, SuperTypeViewSet, TypeViewSet, SubTypeViewSet, SetViewSet
+from manaflare.apps.manaflare_api.v1.views import CardViewSet, SuperTypeViewSet, TypeViewSet, SubTypeViewSet, SetViewSet
 
 router = routers.DefaultRouter()
 router.register(r'cards', CardViewSet)
@@ -26,7 +26,7 @@ router.register(r'sets', SetViewSet)
 
 
 urlpatterns = [
-    url(r'^api/v1/', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^/', include(router.urls)),
+    url(r'^v1/', include(router.urls))
 ]
 

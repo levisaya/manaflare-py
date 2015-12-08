@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from manaflare_app.models import CardColors
+from manaflare.apps.manaflare_api.v1.models import CardColors
 
 
 def forwards_func(apps, schema_editor):
@@ -21,7 +21,7 @@ def reverse_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manaflare_app', '0001_initial'),
+        ('manaflare_api', '0001_initial'),
     ]
 
     operations = [

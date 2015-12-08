@@ -14,20 +14,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Artist',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('name', models.CharField(unique=True, verbose_name='Name', max_length=100)),
             ],
         ),
         migrations.CreateModel(
             name='Card',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('hash_id', models.CharField(unique=True, verbose_name='Hash ID', max_length=50)),
                 ('layout', models.IntegerField(choices=[(0, 'Normal'), (1, 'Split'), (2, 'Flip'), (3, 'Double Faced'), (4, 'Token'), (5, 'Plane'), (6, 'Scheme'), (7, 'Phenomenon'), (8, 'Leveler'), (9, 'Vanguard')], verbose_name='Layout')),
                 ('name', models.CharField(unique=True, verbose_name='Name', max_length=75)),
                 ('names', separatedvaluesfield.models.SeparatedValuesField(verbose_name='Names', max_length=150)),
                 ('mana_cost', models.CharField(null=True, verbose_name='Mana Cost', max_length=20)),
-                ('cmc', models.FloatField(null=True, default=0, verbose_name='Converted Mana Cost')),
+                ('cmc', models.FloatField(default=0, null=True, verbose_name='Converted Mana Cost')),
                 ('type', models.CharField(verbose_name='Card Type', max_length=100)),
                 ('text', models.TextField(default='', verbose_name='Rules Text')),
                 ('power', models.CharField(null=True, verbose_name='Power', max_length=5)),
@@ -41,30 +41,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CardColors',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('color', models.IntegerField(choices=[(0, 'Red'), (1, 'Green'), (2, 'Blue'), (4, 'White'), (3, 'Black')], verbose_name='Color')),
             ],
         ),
         migrations.CreateModel(
             name='Format',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('name', models.CharField(unique=True, verbose_name='Name', max_length=25)),
             ],
         ),
         migrations.CreateModel(
             name='FormatRelationship',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('status', models.IntegerField(choices=[(0, 'Legal'), (1, 'Banned'), (2, 'Restricted')], verbose_name='Legality')),
-                ('card', models.ForeignKey(to='manaflare_app.Card')),
-                ('format', models.ForeignKey(to='manaflare_app.Format')),
+                ('card', models.ForeignKey(to='manaflare_api.Card')),
+                ('format', models.ForeignKey(to='manaflare_api.Format')),
             ],
         ),
         migrations.CreateModel(
             name='Printing',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('rarity', models.IntegerField(choices=[(0, 'Common'), (1, 'Uncommon'), (2, 'Rare'), (3, 'Mythic Rare'), (4, 'Special'), (5, 'Basic Land')], verbose_name='Rarity')),
                 ('flavor', models.TextField(null=True, verbose_name='Flavor Text')),
                 ('number', models.CharField(null=True, verbose_name='Card Number', max_length=5)),
@@ -72,91 +72,91 @@ class Migration(migrations.Migration):
                 ('variations', separatedvaluesfield.models.SeparatedValuesField(verbose_name='Variations', max_length=150)),
                 ('border', models.CharField(null=True, verbose_name='Border Color', max_length=10)),
                 ('timeshifted', models.BooleanField(default=False, verbose_name='Is Timeshifted')),
-                ('artist', models.ForeignKey(to='manaflare_app.Artist')),
-                ('card', models.ForeignKey(to='manaflare_app.Card')),
+                ('artist', models.ForeignKey(to='manaflare_api.Artist')),
+                ('card', models.ForeignKey(to='manaflare_api.Card')),
             ],
         ),
         migrations.CreateModel(
             name='Rulings',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('date', models.DateField(verbose_name='Date')),
                 ('text', models.TextField(verbose_name='Text')),
-                ('card', models.ForeignKey(to='manaflare_app.Card')),
+                ('card', models.ForeignKey(to='manaflare_api.Card')),
             ],
         ),
         migrations.CreateModel(
             name='Set',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('name', models.CharField(verbose_name='Name', max_length=50)),
                 ('code', models.CharField(verbose_name='Code', max_length=4)),
                 ('border_color', models.CharField(verbose_name='Border Color', max_length=10)),
                 ('release_date', models.DateField(verbose_name='Release Date')),
-                ('type', models.IntegerField(choices=[(0, 'Core'), (1, 'Expansion'), (2, 'Reprint'), (3, 'Box'), (4, 'Un'), (5, 'From The Vault'), (6, 'Premium Deck'), (7, 'Duel Deck'), (8, 'Starter'), (9, 'Commander'), (10, 'Planechase'), (11, 'Archenemy'), (12, 'Promo'), (13, 'Vanguard'), (14, 'Masters')], verbose_name='Set Type')),
+                ('type', models.IntegerField(choices=[(0, 'Core'), (1, 'Expansion'), (2, 'Reprint'), (3, 'Box'), (4, 'Un'), (5, 'From The Vault'), (6, 'Premium Deck'), (7, 'Duel Deck'), (8, 'Starter'), (9, 'Commander'), (10, 'Planechase'), (11, 'Archenemy'), (12, 'Promo'), (13, 'Vanguard'), (14, 'Masters'), (15, 'Conspiracy')], verbose_name='Set Type')),
                 ('block', models.CharField(null=True, verbose_name='Block', max_length=20)),
-                ('cards', models.ManyToManyField(through='manaflare_app.Printing', to='manaflare_app.Card')),
+                ('cards', models.ManyToManyField(through='manaflare_api.Printing', to='manaflare_api.Card')),
             ],
         ),
         migrations.CreateModel(
             name='SubType',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.CharField(unique=True, verbose_name='Value', max_length=100)),
             ],
         ),
         migrations.CreateModel(
             name='SuperType',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.CharField(unique=True, verbose_name='Value', max_length=100)),
             ],
         ),
         migrations.CreateModel(
             name='Type',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('value', models.CharField(unique=True, verbose_name='Value', max_length=100)),
             ],
         ),
         migrations.AddField(
             model_name='printing',
             name='set',
-            field=models.ForeignKey(to='manaflare_app.Set'),
+            field=models.ForeignKey(to='manaflare_api.Set'),
         ),
         migrations.AddField(
             model_name='format',
             name='cards',
-            field=models.ManyToManyField(through='manaflare_app.FormatRelationship', to='manaflare_app.Card'),
+            field=models.ManyToManyField(through='manaflare_api.FormatRelationship', to='manaflare_api.Card'),
         ),
         migrations.AddField(
             model_name='format',
             name='sets',
-            field=models.ManyToManyField(to='manaflare_app.Set'),
+            field=models.ManyToManyField(to='manaflare_api.Set'),
         ),
         migrations.AddField(
             model_name='card',
             name='color_identity',
-            field=models.ManyToManyField(to='manaflare_app.CardColors', related_name='color_identity', db_constraint='Color Identity'),
+            field=models.ManyToManyField(related_name='color_identity', db_constraint='Color Identity', to='manaflare_api.CardColors'),
         ),
         migrations.AddField(
             model_name='card',
             name='colors',
-            field=models.ManyToManyField(to='manaflare_app.CardColors', related_name='card_color', db_constraint='Colors'),
+            field=models.ManyToManyField(related_name='card_color', db_constraint='Colors', to='manaflare_api.CardColors'),
         ),
         migrations.AddField(
             model_name='card',
             name='subtypes',
-            field=models.ManyToManyField(to='manaflare_app.SubType', blank=True),
+            field=models.ManyToManyField(to='manaflare_api.SubType', blank=True),
         ),
         migrations.AddField(
             model_name='card',
             name='supertypes',
-            field=models.ManyToManyField(to='manaflare_app.SuperType', blank=True),
+            field=models.ManyToManyField(to='manaflare_api.SuperType', blank=True),
         ),
         migrations.AddField(
             model_name='card',
             name='types',
-            field=models.ManyToManyField(to='manaflare_app.Type'),
+            field=models.ManyToManyField(to='manaflare_api.Type'),
         ),
     ]
