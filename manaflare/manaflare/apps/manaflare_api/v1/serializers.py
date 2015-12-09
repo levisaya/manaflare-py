@@ -27,11 +27,14 @@ class CardColorSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CardSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='card-detail', lookup_field='name')
     colors = CardColorSerializer(many=True)
     color_identity = CardColorSerializer(many=True)
 
+
     class Meta:
         model = Card
+        lookup_field = 'name'
 
 
 class SetSerializer(serializers.HyperlinkedModelSerializer):

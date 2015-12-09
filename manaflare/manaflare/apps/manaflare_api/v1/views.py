@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from manaflare.apps.manaflare_api.v1.models import Card, SuperType, Type, SubType, Set
 from manaflare.apps.manaflare_api.v1.serializers import CardSerializer, SuperTypeSerializer, TypeSerializer, SubTypeSerializer, SetSerializer
-
+from rest_framework.generics import ListAPIView
 
 class SuperTypeViewSet(viewsets.ModelViewSet):
     queryset = SuperType.objects.order_by('value').all()
@@ -19,7 +19,7 @@ class SubTypeViewSet(viewsets.ModelViewSet):
 
 
 class CardViewSet(viewsets.ModelViewSet):
-    # lookup_field = 'name'
+    lookup_field = 'name'
     queryset = Card.objects.all()
     serializer_class = CardSerializer
 

@@ -17,6 +17,6 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^api/', include('manaflare.apps.manaflare_api.urls')),
+    url(r'^api', include('manaflare.apps.manaflare_api.urls')),
     url(r'^admin/', include(admin.site.urls)),
 ]

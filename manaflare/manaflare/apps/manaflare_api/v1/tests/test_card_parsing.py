@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 
 
 class CardTests(APITestCase):
-    fixtures = ['manaflare/apps/manaflare_api/v1/tests/fixtures/ISD.json']
+    fixtures = ['manaflare/apps/manaflare_api/v1/tests/fixtures/ISD+BFZ.json']
 
     def test_card_parse(self):
         url = reverse('card-detail', args=(91,))

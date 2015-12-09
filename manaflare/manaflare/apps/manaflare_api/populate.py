@@ -84,20 +84,23 @@ def parse_set(db_alias, set_json):
                                                               status=FormatRelationship.legality_from_json(legality['legality']))
 
 
-def populate_from_json(db_alias, set_code=None):
-    if set_code is not None:
-        url = 'http://mtgjson.com/json/{}-x.json.zip'.format(set_code)
+def populate_from_json(db_alias, set_codes=None):
+    urls = []
+    if set_codes is not None:
+        for set_code in set_codes:
+            urls.append('http://mtgjson.com/json/{}-x.json.zip'.format(set_code))
     else:
-        url = 'http://mtgjson.com/json/AllSetFiles-x.zip'
+        urls.append('http://mtgjson.com/json/AllSetFiles-x.zip')
 
-    response = requests.get(url)
-    io = BytesIO()
-    io.write(response.content)
+    for url in urls:
+        response = requests.get(url)
+        io = BytesIO()
+        io.write(response.content)
 
-    zip = zipfile.ZipFile(io)
+        zip = zipfile.ZipFile(io)
 
-    for name in zip.namelist():
-        parse_set(db_alias, json.loads(zip.read(name).decode('UTF-8')))
+        for name in zip.namelist():
+            parse_set(db_alias, json.loads(zip.read(name).decode('UTF-8')))
 
 
 if __name__ == '__main__':

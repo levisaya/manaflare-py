@@ -26,7 +26,6 @@ router.register(r'sets', SetViewSet)
 
 
 urlpatterns = [
-    url(r'^/', include(router.urls)),
-    url(r'^v1/', include(router.urls))
+    url(r'^/', include(router.urls))
 ]
 
