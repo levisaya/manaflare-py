@@ -39,8 +39,7 @@ def parse_set(db_alias, set_json):
             pass
 
         if card_record is None:
-            card_record = Card.objects.using(db_alias).create(hash_id=card['id'],
-                                                              layout=Card.layout_from_json(card['layout']),
+            card_record = Card.objects.using(db_alias).create(layout=Card.layout_from_json(card['layout']),
                                                               name=card['name'],
                                                               names=card.get('names', []),
                                                               mana_cost=card.get('manaCost', None),
@@ -65,7 +64,8 @@ def parse_set(db_alias, set_json):
             card_record.subtypes = subtypes
             card_record.save()
 
-        printing = Printing.objects.using(db_alias).create(rarity=Printing.rarity_from_json(card['rarity']),
+        printing = Printing.objects.using(db_alias).create(hash_id=card['id'],
+                                                           rarity=Printing.rarity_from_json(card['rarity']),
                                                            flavor=card.get('flavor', None),
                                                            artist=artist,
                                                            number=card.get('number', None),

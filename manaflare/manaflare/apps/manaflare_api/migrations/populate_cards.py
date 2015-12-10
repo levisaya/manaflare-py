@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         db_alias = schema_editor.connection.alias
 
     dependencies = [
-        ('manaflare_api', '0002_add_colors'),
+        ('manaflare_api', '0003_move_id'),
     ]
 
     operations = [

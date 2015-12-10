@@ -69,6 +69,7 @@ class Printing(models.Model):
     def rarity_from_json(cls, json_str):
         return {human_readable: db_value for db_value, human_readable in cls.RARITIES}.get(json_str, None)
 
+    hash_id = models.CharField('Hash ID', unique=True, max_length=50)
     rarity = models.IntegerField('Rarity', choices=RARITIES)
     flavor = models.TextField('Flavor Text', null=True)
     artist = models.ForeignKey('Artist')
@@ -113,7 +114,6 @@ class Card(models.Model):
         return {human_readable.lower().replace(' ', '-'): db_value for db_value, human_readable in cls.LAYOUTS}.get(json_str, None)
 
 
-    hash_id = models.CharField('Hash ID', unique=True, max_length=50)
     layout = models.IntegerField('Layout', choices=LAYOUTS)
     name = models.CharField('Name', max_length=75, unique=True)
     names = SeparatedValuesField('Names', max_length=150)
