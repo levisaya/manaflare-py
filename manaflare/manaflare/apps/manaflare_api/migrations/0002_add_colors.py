@@ -2,12 +2,12 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from manaflare.apps.manaflare_api.v1.models import CardColors
+from manaflare.apps.manaflare_api.models import CardColors
 
 
 def forwards_func(apps, schema_editor):
     db_alias = schema_editor.connection.alias
-    color_values = [color_enum[0] for color_enum in CardColors.COLORS]
+    color_values = [color_enum[0] for color_enum in CardColors.COLORS.items()]
     CardColors.objects.using(db_alias).bulk_create([CardColors(color=color_choice) for color_choice in color_values])
 
 

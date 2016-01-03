@@ -2,21 +2,7 @@ from django.db import models
 from separatedvaluesfield.models import SeparatedValuesField
 
 
-class SuperType(models.Model):
-    value = models.CharField('Value', max_length=100, unique=True)
-
-    def __str__(self):
-        return self.value
-
-
-class Type(models.Model):
-    value = models.CharField('Value', max_length=100, unique=True)
-
-    def __str__(self):
-        return self.value
-
-
-class SubType(models.Model):
+class CardType(models.Model):
     value = models.CharField('Value', max_length=100, unique=True)
 
     def __str__(self):
@@ -34,15 +20,15 @@ class CardColors(models.Model):
     COLOR_BLACK = 3
     COLOR_WHITE = 4
 
-    COLORS = (
-        (COLOR_RED, 'Red'),
-        (COLOR_GREEN, 'Green'),
-        (COLOR_BLUE, 'Blue'),
-        (COLOR_WHITE, 'White'),
-        (COLOR_BLACK, 'Black'),
-    )
+    COLORS = {
+        COLOR_RED: 'R',
+        COLOR_GREEN: 'G',
+        COLOR_BLUE: 'U',
+        COLOR_WHITE: 'W',
+        COLOR_BLACK: 'B'
+    }
 
-    color = models.IntegerField('Color', choices=COLORS)
+    color = models.IntegerField('Color', choices=COLORS.items())
 
     def __str__(self):
         return self.color
@@ -81,6 +67,13 @@ class Printing(models.Model):
 
     card = models.ForeignKey('Card')
     set = models.ForeignKey('Set')
+
+
+class TypeLinkage(models.Model):
+    type = models.ForeignKey(CardType, on_delete=models.CASCADE)
+    card = models.ForeignKey('Card', on_delete=models.CASCADE)
+    supertype = models.BooleanField(default=False)
+    subtype = models.BooleanField(default=False)
 
 
 class Card(models.Model):
@@ -122,9 +115,7 @@ class Card(models.Model):
     colors = models.ManyToManyField(CardColors, 'Colors', related_name='card_color')
     color_identity = models.ManyToManyField(CardColors, 'Color Identity', related_name='color_identity')
     type = models.CharField('Card Type', max_length=100)
-    supertypes = models.ManyToManyField('SuperType', blank=True)
-    types = models.ManyToManyField('Type')
-    subtypes = models.ManyToManyField('Subtype', blank=True)
+    types = models.ManyToManyField('CardType', through=TypeLinkage)
     text = models.TextField('Rules Text', default='')
     power = models.CharField('Power', null=True, max_length=5)
     toughness = models.CharField('Toughness', null=True, max_length=5)

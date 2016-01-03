@@ -19,9 +19,6 @@ from manaflare.apps.manaflare_api.v1 import views as v1_views
 
 router = routers.DefaultRouter()
 router.register(r'cards', v1_views.CardViewSet)
-router.register(r'supertypes', v1_views.SuperTypeViewSet)
-router.register(r'types', v1_views.TypeViewSet)
-router.register(r'subtypes', v1_views.SubTypeViewSet)
 router.register(r'sets', v1_views.SetViewSet)
 router.register(r'printings', v1_views.PrintingViewSet)
 

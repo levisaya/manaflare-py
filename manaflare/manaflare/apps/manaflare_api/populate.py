@@ -2,20 +2,22 @@ from io import BytesIO
 import requests
 import zipfile
 import json
-from manaflare.apps.manaflare_api.v1.models import Set, Artist, Format, Printing, CardColors, Card, SuperType, Type, SubType, FormatRelationship
+from manaflare.apps.manaflare_api.models import Set, Artist, Format, Printing, CardColors, Card, CardType, FormatRelationship, TypeLinkage
 from django.core.exceptions import ObjectDoesNotExist
 
 
 def parse_set(db_alias, set_json):
-    colors = {color_str: CardColors.objects.using(db_alias).get(color=color) for color, color_str in CardColors.COLORS}
-
-    color_identities = {
-        'W': colors['White'],
-        'U': colors['Blue'],
-        'R': colors['Red'],
-        'G': colors['Green'],
-        'B': colors['Black']
+    color_str_conversion = {
+        'W': 'White',
+        'U': 'Blue',
+        'R': 'Red',
+        'G': 'Green',
+        'B': 'Black'
     }
+
+    colors = {color_str_conversion[color_str]: CardColors.objects.using(db_alias).get(color=color) for color, color_str in CardColors.COLORS.items()}
+
+    color_identities = {color_chr: colors[color] for color_chr, color in color_str_conversion.items()}
 
     set = Set.objects.using(db_alias).create(name=set_json['name'],
                                              code=set_json['code'],
@@ -27,9 +29,9 @@ def parse_set(db_alias, set_json):
     for card in set_json['cards']:
         artist, _ = Artist.objects.using(db_alias).get_or_create(name=card['artist'])
 
-        supertypes = [SuperType.objects.using(db_alias).get_or_create(value=super_type)[0] for super_type in card.get('supertypes', [])]
-        types = [Type.objects.using(db_alias).get_or_create(value=_type)[0] for _type in card.get('types', [])]
-        subtypes = [SubType.objects.using(db_alias).get_or_create(value=_type)[0] for _type in card.get('subtypes', [])]
+        supertypes = [CardType.objects.using(db_alias).get_or_create(value=super_type)[0] for super_type in card.get('supertypes', [])]
+        types = [CardType.objects.using(db_alias).get_or_create(value=_type)[0] for _type in card.get('types', [])]
+        subtypes = [CardType.objects.using(db_alias).get_or_create(value=_type)[0] for _type in card.get('subtypes', [])]
 
         card_record = None
 
@@ -59,10 +61,21 @@ def parse_set(db_alias, set_json):
             for color_str in card.get('colorIdentity', []):
                 card_record.color_identity.add(color_identities[color_str])
 
-            card_record.supertypes = supertypes
-            card_record.types = types
-            card_record.subtypes = subtypes
             card_record.save()
+
+            for supertype in supertypes:
+                TypeLinkage.objects.using(db_alias).create(type=supertype,
+                                                           card=card_record,
+                                                           supertype=True)
+
+            for type in types:
+                TypeLinkage.objects.using(db_alias).create(type=type,
+                                                           card=card_record)
+
+            for subtype in subtypes:
+                TypeLinkage.objects.using(db_alias).create(type=subtype,
+                                                           card=card_record,
+                                                           subtype=True)
 
         printing = Printing.objects.using(db_alias).create(hash_id=card['id'],
                                                            rarity=Printing.rarity_from_json(card['rarity']),

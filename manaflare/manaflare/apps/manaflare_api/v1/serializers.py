@@ -1,24 +1,16 @@
 from rest_framework import serializers
-from manaflare.apps.manaflare_api.v1.models import Card, SuperType, Type, SubType, CardColors, Set, Printing
+from manaflare.apps.manaflare_api.models import Card, CardType, CardColors, Set, Printing, TypeLinkage
 from rest_framework.reverse import reverse
 
 
-class SuperTypeSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = SuperType
-        fields = ('value',)
+class ColorField(serializers.RelatedField):
+    def to_representation(self, obj):
+        return CardColors.COLORS[obj.color]
 
 
-class TypeSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Type
-        fields = ('value',)
-
-
-class SubTypeSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = SubType
-        fields = ('value',)
+class TypeField(serializers.RelatedField):
+    def to_representation(self, obj):
+        pass
 
 
 class CardColorSerializer(serializers.HyperlinkedModelSerializer):
@@ -27,23 +19,32 @@ class CardColorSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('color',)
 
 
-# class PrintingListingField(serializers.RelatedField):
-#     def get_url(self, obj, view_name, request, format):
-#         url_kwargs = {
-#             'name': obj.organization.slug,
-#         }
-#         return reverse(view_name, kwargs=url_kwargs, request=request, format=format)
-#
-#     def to_representation(self, value):
-#         duration = time.strftime('%M:%S', time.gmtime(value.duration))
-#         return 'Track %d: %s (%s)' % (value.order, value.name, duration)
+class PrintingListingField(serializers.RelatedField):
+    def get_url(self, obj, view_name, request, format):
+        url_kwargs = {
+            'hash_id': obj.hash_id
+        }
+        return reverse(view_name, kwargs=url_kwargs, request=request, format=format)
+
+    def to_representation(self, value):
+        duration = time.strftime('%M:%S', time.gmtime(value.duration))
+        return 'Track %d: %s (%s)' % (value.order, value.name, duration)
+
+
+class TypeLinkageSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(source='type.value')
+
+    class Meta:
+        model = TypeLinkage
+        fields = ('type', 'supertype', 'subtype')
 
 
 class CardSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='card-detail', lookup_field='name')
-    colors = CardColorSerializer(many=True)
-    color_identity = CardColorSerializer(many=True)
-    # printings = PrintingListingField
+    colors = ColorField(many=True, read_only=True)
+    color_identity = ColorField(many=True, read_only=True)
+    types = TypeLinkageSerializer(source='typelinkage_set', many=True)
+    printings = PrintingListingField
 
     class Meta:
         model = Card
